@@ -1,19 +1,33 @@
 import json
+import csv
 import yfinance as yf
 from tqdm import tqdm
+from functools import reduce
 
 with open('E:\Thesis\Excel files\S&P500_tickers.json', 'r') as tickers_json:
     tickers = json.load(tickers_json)
+with open('E:/Thesis/Excel files/tickers.csv', 'r') as full_tickers:
+    full_tickers_list = list(reduce(lambda x, y: x + y, list(csv.reader(full_tickers)), []))
+
+for elem in tickers:
+    if tickers[elem] in full_tickers_list:
+        continue
+    else:
+        full_tickers_list.extend(tickers[elem])
+
 
 new_data = {}
 temp = {}
 data_set = {}
-with tqdm(total=len(tickers)) as pbar:
-    for num in tickers:
-        tkr = tickers[str(num)]
+with tqdm(total=len(full_tickers_list)) as pbar:
+    for elem in full_tickers_list:
+        tkr = elem
         temp[tkr] = {}
         company = yf.Ticker(tkr)
-        sector = company.info['sector']
+        try:
+            sector = company.info['sector']
+        except KeyError:
+            pass
         for i in range(2020, 2024):
             temp[tkr][i] = {}
             try:
