@@ -1,4 +1,6 @@
 import json
+import csv
+from functools import reduce
 
 import pandas as pd
 import yfinance as yf
@@ -6,10 +8,18 @@ from tqdm import tqdm
 
 with open('E:\Thesis\Excel files\S&P500_tickers.json', 'r') as tickers_json:
     tickers = json.load(tickers_json)
+with open('E:/Thesis/Excel files/tickers.csv', 'r') as full_tickers:
+    full_tickers_list = list(reduce(lambda x, y: x + y, list(csv.reader(full_tickers)), []))
 
-with tqdm(total=len(tickers)) as pbar:
-    for num in tickers:
-        tkr = tickers[str(num)]
+for elem in tickers:
+    if tickers[elem] in full_tickers_list:
+        continue
+    else:
+        full_tickers_list.extend(tickers[elem])
+
+with tqdm(total=len(full_tickers_list)) as pbar:
+    for elem in full_tickers_list:
+        tkr = elem
         company = yf.Ticker(tkr)
         bs = pd.DataFrame(company.balance_sheet)
         pl = pd.DataFrame(company.income_stmt)
