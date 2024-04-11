@@ -4,6 +4,7 @@ from sklearn.cluster import KMeans
 import json
 import csv
 from functools import reduce
+import pprint as pprint
 
 with open('E:\Thesis\Excel files\S&P500_tickers.json', 'r') as tickers_json:
     tickers = json.load(tickers_json)
@@ -30,11 +31,12 @@ for elem in full_tickers_list:
     tkr = elem
     for i in range(2020, 2024):
         try:
-            liquidity_metric_values.append(data_set[tkr][str(i)]['Working Cap Metrics']['CCC'])
-            profit_margin_values.append(data_set[tkr][str(i)]['EBITDA Margin'])
-            COGS_values.append(data_set[tkr][str(i)]['pl']['Cost Of Revenue']/pow(10,9))
+            liquidity_metric_values.append(data_set[tkr][i]['Working Cap Metrics']['CCC'])
+            profit_margin_values.append(data_set[tkr][i]['EBITDA Margin'])
+            COGS_values.append(data_set[tkr][i]['pl']['Cost Of Revenue']/pow(10,9))
             sector_values.append(data_set[tkr]['sector'])
         except KeyError:
+            print ('KeyError: ', tkr)
             pass
 
 d = {'sector':sector_values, 'liq':liquidity_metric_values,'prof_mrgn': profit_margin_values, 'cogs' :COGS_values}
@@ -47,10 +49,11 @@ for sector in sector_values:
     else:
         sectors_list.append(sector)
 
+    pprint (df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
 
-for sector in sectors_list:
+'''for sector in sectors_list:
     print (sector)
     km = KMeans(n_clusters=5)
     km.fit(df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
     results = km.cluster_centers_
-    print (results)
+    print (results)'''

@@ -28,6 +28,8 @@ with tqdm(total=len(full_tickers_list)) as pbar:
             sector = company.info['sector']
         except KeyError:
             pass
+        if '404 Client Error' in sector:
+            sector = 'NaN'
         for i in range(2020, 2024):
             temp[tkr][i] = {}
             try:
