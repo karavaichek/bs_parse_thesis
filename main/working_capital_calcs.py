@@ -44,16 +44,21 @@ for elem in full_tickers_list:
 
         try:
             if i == 2020:
-                data_set[tkr][str(i)]['Working Cap Metrics'] = {
-                    'DIO': data_set[tkr][str(i)]['bs']['Inventory'] / data_set[tkr][str(i)]['pl'][
-                        'Cost Of Revenue'] * days_in_period,
-                    'DSO': data_set[tkr][str(i)]['bs']['Accounts Receivable'] / data_set[tkr][str(i)]['pl'][
-                        'Total Revenue'] * days_in_period,
-                    'DPO': data_set[tkr][str(i)]['bs']['Accounts Payable'] / data_set[tkr][str(i)]['pl'][
-                        'Total Revenue'] * days_in_period
-                }
+                try:
+                    data_set[tkr][str(i)]['Working Cap Metrics'] = {
+                        'DIO': data_set[tkr][str(i)]['bs']['Inventory'] / data_set[tkr][str(i)]['pl'][
+                            'Cost Of Revenue'] * days_in_period,
+                        'DSO': data_set[tkr][str(i)]['bs']['Accounts Receivable'] / data_set[tkr][str(i)]['pl'][
+                            'Total Revenue'] * days_in_period,
+                        'DPO': data_set[tkr][str(i)]['bs']['Accounts Payable'] / data_set[tkr][str(i)]['pl'][
+                            'Total Revenue'] * days_in_period
+                    }
+                except ZeroDivisionError:
+                    pass
+
             elif i in range(2021, 2024):
-                data_set[tkr][str(i)]['Working Cap Metrics'] = {
+                try:
+                    data_set[tkr][str(i)]['Working Cap Metrics'] = {
                     'DIO': (data_set[tkr][str(i)]['bs']['Inventory'] - data_set[tkr][str(i - 1)]['bs']['Inventory']) /
                            data_set[tkr][str(i)]['pl']['Cost Of Revenue'] * days_in_period,
                     'DSO': (data_set[tkr][str(i)]['bs']['Accounts Receivable'] - data_set[tkr][str(i - 1)]['bs'][
@@ -61,10 +66,15 @@ for elem in full_tickers_list:
                     'DPO': (data_set[tkr][str(i)]['bs']['Accounts Payable'] - data_set[tkr][str(i - 1)]['bs'][
                         'Accounts Payable']) /
                            data_set[tkr][str(i)]['pl']['Total Revenue'] * days_in_period
-                }
-            data_set[tkr][str(i)]['Working Cap Metrics']['CCC'] = data_set[tkr][str(i)]['Working Cap Metrics']['DIO'] + \
+                    }
+                except ZeroDivisionError:
+                    pass
+            try:
+                data_set[tkr][str(i)]['Working Cap Metrics']['CCC'] = data_set[tkr][str(i)]['Working Cap Metrics']['DIO'] + \
                                                                   data_set[tkr][str(i)]['Working Cap Metrics']['DSO'] - \
                                                                   data_set[tkr][str(i)]['Working Cap Metrics']['DPO']
+            except ZeroDivisionError:
+                pass
             print(tkr, ': ', i)
         except KeyError:
             errors_list['CCC'][str(i)] = tkr

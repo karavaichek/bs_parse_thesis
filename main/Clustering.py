@@ -20,7 +20,6 @@ for elem in tickers:
 with open(f'E:/Thesis/Excel files/Output_dataset/full_dataset.json', 'r') as full_dataset:
     data_set = json.load(full_dataset)
 
-
 liquidity_metric_values = []
 profit_margin_values = []
 COGS_values = []
@@ -29,15 +28,21 @@ sector_values = []
 
 for elem in full_tickers_list:
     tkr = elem
+    print (tkr)
     for i in range(2020, 2024):
         try:
-            liquidity_metric_values.append(data_set[tkr][i]['Working Cap Metrics']['CCC'])
-            profit_margin_values.append(data_set[tkr][i]['EBITDA Margin'])
-            COGS_values.append(data_set[tkr][i]['pl']['Cost Of Revenue']/pow(10,9))
-            sector_values.append(data_set[tkr]['sector'])
+            print (data_set[tkr][str(i)]['Working Cap Metrics']['CCC'])
         except KeyError:
-            print ('KeyError: ', tkr)
-            pass
+            print ('error: ', tkr)
+
+'''try:
+    liquidity_metric_values.append(data_set[tkr][i]['Working Cap Metrics']['CCC'])
+    profit_margin_values.append(data_set[tkr][i]['EBITDA Margin'])
+    COGS_values.append(data_set[tkr][i]['pl']['Cost Of Revenue']/pow(10,9))
+    sector_values.append(data_set[tkr]['sector'])
+except KeyError:
+    print ('KeyError: ', tkr)
+    pass
 
 d = {'sector':sector_values, 'liq':liquidity_metric_values,'prof_mrgn': profit_margin_values, 'cogs' :COGS_values}
 df = pd.DataFrame(data=d)
@@ -51,7 +56,7 @@ for sector in sector_values:
 
     pprint (df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
 
-'''for sector in sectors_list:
+for sector in sectors_list:
     print (sector)
     km = KMeans(n_clusters=5)
     km.fit(df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
