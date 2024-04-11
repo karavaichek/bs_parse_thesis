@@ -1,8 +1,18 @@
 import json
+import csv
+from functools import reduce
 from pprint import pprint
 
 with open('E:\Thesis\Excel files\S&P500_tickers.json', 'r') as tickers_json:
     tickers = json.load(tickers_json)
+with open('E:/Thesis/Excel files/tickers.csv', 'r') as full_tickers:
+    full_tickers_list = list(reduce(lambda x, y: x + y, list(csv.reader(full_tickers)), []))
+
+for elem in tickers:
+    if tickers[elem] in full_tickers_list:
+        continue
+    else:
+        full_tickers_list.extend(tickers[elem])
 
 with open(f'E:/Thesis/Excel files/Output_dataset/full_dataset.json', 'r') as full_dataset:
     data_set = json.load(full_dataset)
@@ -24,8 +34,8 @@ errors_list = {
     'Total Revenue, Current Assets, Current Liabilities, AR, AP, Inventory для всех лет': []
 }
 
-for num in range(0, len(tickers)):
-    tkr = tickers[str(num)]
+for elem in full_tickers_list:
+    tkr = elem
     for i in range(2020, 2024):
         if i % 4 == 0:
             days_in_period = 366
