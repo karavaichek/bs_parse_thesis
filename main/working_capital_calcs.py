@@ -2,6 +2,7 @@ import json
 import csv
 from functools import reduce
 from pprint import pprint
+from tqdm import tqdm
 
 with open('E:\Thesis\Excel files\S&P500_tickers.json', 'r') as tickers_json:
     tickers = json.load(tickers_json)
@@ -34,50 +35,52 @@ errors_list = {
     'Total Revenue, Current Assets, Current Liabilities, AR, AP, Inventory для всех лет': []
 }
 
-for elem in full_tickers_list:
-    tkr = elem
-    for i in range(2020, 2024):
-        if i % 4 == 0:
-            days_in_period = 366
-        else:
-            days_in_period = 365
+with tqdm(total=len(full_tickers_list)) as pbar:
+    for elem in full_tickers_list:
+        tkr = elem
+        for i in range(2020, 2024):
+            if i % 4 == 0:
+                days_in_period = 366
+            else:
+                days_in_period = 365
 
-        try:
-            if i == 2020:
-                try:
-                    data_set[tkr][str(i)]['Working Cap Metrics'] = {
-                        'DIO': data_set[tkr][str(i)]['bs']['Inventory'] / data_set[tkr][str(i)]['pl'][
-                            'Cost Of Revenue'] * days_in_period,
-                        'DSO': data_set[tkr][str(i)]['bs']['Accounts Receivable'] / data_set[tkr][str(i)]['pl'][
-                            'Total Revenue'] * days_in_period,
-                        'DPO': data_set[tkr][str(i)]['bs']['Accounts Payable'] / data_set[tkr][str(i)]['pl'][
-                            'Total Revenue'] * days_in_period
-                    }
-                except ZeroDivisionError:
-                    pass
-
-            elif i in range(2021, 2024):
-                try:
-                    data_set[tkr][str(i)]['Working Cap Metrics'] = {
-                    'DIO': (data_set[tkr][str(i)]['bs']['Inventory'] - data_set[tkr][str(i - 1)]['bs']['Inventory']) /
-                           data_set[tkr][str(i)]['pl']['Cost Of Revenue'] * days_in_period,
-                    'DSO': (data_set[tkr][str(i)]['bs']['Accounts Receivable'] - data_set[tkr][str(i - 1)]['bs'][
-                        'Accounts Receivable']) / data_set[tkr][str(i)]['pl']['Total Revenue'] * days_in_period,
-                    'DPO': (data_set[tkr][str(i)]['bs']['Accounts Payable'] - data_set[tkr][str(i - 1)]['bs'][
-                        'Accounts Payable']) /
-                           data_set[tkr][str(i)]['pl']['Total Revenue'] * days_in_period
-                    }
-                except ZeroDivisionError:
-                    pass
             try:
-                data_set[tkr][str(i)]['Working Cap Metrics']['CCC'] = data_set[tkr][str(i)]['Working Cap Metrics']['DIO'] + \
-                                                                  data_set[tkr][str(i)]['Working Cap Metrics']['DSO'] - \
-                                                                  data_set[tkr][str(i)]['Working Cap Metrics']['DPO']
-            except ZeroDivisionError:
-                pass
-            print(tkr, ': ', i)
-        except KeyError:
-            errors_list['CCC'][str(i)] = tkr
+                if i == 2020:
+                    try:
+                        data_set[tkr][str(i)]['Working Cap Metrics'] = {
+                            'DIO': data_set[tkr][str(i)]['bs']['Inv'] / data_set[tkr][str(i)]['pl'][
+                                'COGS'] * days_in_period,
+                            'DSO': data_set[tkr][str(i)]['bs']['AR'] / data_set[tkr][str(i)]['pl'][
+                                'Revenue'] * days_in_period,
+                            'DPO': data_set[tkr][str(i)]['bs']['AP'] / data_set[tkr][str(i)]['pl'][
+                                'Revenue'] * days_in_period
+                        }
+                    except ZeroDivisionError:
+                        pass
+
+                elif i in range(2021, 2024):
+                    try:
+                        data_set[tkr][str(i)]['Working Cap Metrics'] = {
+                        'DIO': (data_set[tkr][str(i)]['bs']['Inv'] - data_set[tkr][str(i - 1)]['bs']['Inv']) /
+                               data_set[tkr][str(i)]['pl']['COGS'] * days_in_period,
+                        'DSO': (data_set[tkr][str(i)]['bs']['AR'] - data_set[tkr][str(i - 1)]['bs'][
+                            'AR']) / data_set[tkr][str(i)]['pl']['Revenue'] * days_in_period,
+                        'DPO': (data_set[tkr][str(i)]['bs']['AP'] - data_set[tkr][str(i - 1)]['bs'][
+                            'AP']) /
+                               data_set[tkr][str(i)]['pl']['Revenue'] * days_in_period
+                        }
+                    except ZeroDivisionError:
+                        pass
+                try:
+                    data_set[tkr][str(i)]['Working Cap Metrics']['CCC'] = data_set[tkr][str(i)]['Working Cap Metrics']['DIO'] + \
+                                                                      data_set[tkr][str(i)]['Working Cap Metrics']['DSO'] - \
+                                                                      data_set[tkr][str(i)]['Working Cap Metrics']['DPO']
+                except ZeroDivisionError:
+                    pass
+            except KeyError:
+                errors_list['CCC'][str(i)] = tkr
+        pbar.update(1)
+
 
 with open(f'E:/Thesis/Excel files/Output_dataset/full_dataset.json', 'w') as f:
     json.dump(data_set, f)

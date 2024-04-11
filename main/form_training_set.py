@@ -15,9 +15,9 @@ for num in tickers:
     for i in range(2020, 2023):
         new_data[tkr][i] = {}
         try:
-            new_data[tkr]['sector'] = temp[tkr]['sector']
-            new_data[tkr][i]['Working Cap Metrics'] = temp[tkr][str(i)]['Working Cap Metrics']
             new_data[tkr][i]['bs'] = temp[tkr][str(i)]['bs']
+            new_data[tkr][i]['Working Cap Metrics']=temp[tkr][str(i)]['Working Cap Metrics']
+            new_data[tkr]['sector'] = temp[tkr]['sector']
             new_data[tkr][i]['EBITDA Margin'] = temp[tkr][str(i)]['EBITDA Margin']
         except KeyError:
             pass
