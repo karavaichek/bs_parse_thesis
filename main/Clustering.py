@@ -42,6 +42,7 @@ for elem in full_tickers_list:
 d = {'sector':sector_values, 'liq':liquidity_metric_values,'prof_mrgn': profit_margin_values, 'cogs' :COGS_values}
 df = pd.DataFrame(data=d)
 
+
 sectors_list = []
 sectors_number = {}
 for sector in sector_values:

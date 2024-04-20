@@ -15,26 +15,24 @@ for elem in tickers:
     else:
         full_tickers_list.extend(tickers[elem])
 
-
 new_data = {}
 temp = {}
 data_set = {}
 with tqdm(total=len(full_tickers_list)) as pbar:
     for elem in full_tickers_list:
         tkr = elem
-        temp[tkr] = {}
         company = yf.Ticker(tkr)
-        try:
-            sector = company.info['sector']
-            if '404 Client Error' in sector:
-                sector = 'No sector'
-        except KeyError:
-            sector = 'No sector'
-            pass
-
         for i in range(2020, 2024):
+            key = tkr + '_' + str(i)
+            temp[key] = {}
             try:
-                temp[tkr][i] = {}
+                sector = company.info['sector']
+                if '404 Client Error' in sector:
+                    sector = 'No sector'
+            except KeyError:
+                sector = 'No sector'
+                pass
+            try:
                 with open(f'E:/Thesis/Excel files/Output_bs/{i}/{tkr}_{i}.json', 'r') as bs_raw:
                     bs_dict = json.load(bs_raw)
                     if 'Cash And Cash Equivalents' in list(bs_dict[list(bs_dict)[0]].keys()):
@@ -88,7 +86,7 @@ with tqdm(total=len(full_tickers_list)) as pbar:
                         except KeyError:
                             current_liabilities = 0
                     else:
-                        current_liabilities = accounts_payable+current_debt
+                        current_liabilities = accounts_payable + current_debt
                     if 'Current Assets' in list(bs_dict[list(bs_dict)[0]].keys()):
                         try:
                             current_assets = bs_dict[list(bs_dict)[0]]['Current Assets']
@@ -97,16 +95,8 @@ with tqdm(total=len(full_tickers_list)) as pbar:
                     else:
                         current_assets = cash + inventory + accounts_receivable
 
-                    temp[tkr][i]['bs'] = {'Cash': cash,
-                                          'Inv': inventory,
-                                          'AR': accounts_receivable,
-                                          'AP': accounts_payable,
-                                          'Current Debt': current_debt,
-                                          'Current Assets': current_assets,
-                                          'Current Liabilities':current_liabilities}
             except IndexError:
                 pass
-
             try:
                 with open(f'E:/Thesis/Excel files/Output_pl/{i}/{tkr}_{i}.json', 'r') as pl_raw:
                     pl_dict = json.load(pl_raw)
@@ -146,13 +136,78 @@ with tqdm(total=len(full_tickers_list)) as pbar:
                         operating_revenue = 0
                     if operating_revenue is None:
                         operating_revenue = 0
-
-                    temp[tkr][i]['pl'] = {'Revenue': revenue,
-                                          'COGS': cost_of_revenue,
-                                          'EBITDA': ebitda,
-                                          'Op. Revenue': operating_revenue}
             except IndexError:
                 pass
+            try:
+                dio = inventory / cost_of_revenue * 365
+            except ZeroDivisionError:
+                dio = 0
+                pass
+            try:
+                dso = accounts_receivable / revenue * 365
+            except ZeroDivisionError:
+                dso = 0
+                pass
+            try:
+                dpo = accounts_payable / revenue * 365
+            except ZeroDivisionError:
+                dpo = 0
+                pass
+            try:
+                ebitda_margin = ebitda / revenue
+            except ZeroDivisionError:
+                ebitda_margin = 0
+                pass
+            ccc = dio + dso - dpo
+
+            if revenue is not None:
+                revenue = revenue/pow(10, 6)
+            else:
+                continue
+            if cost_of_revenue is not None:
+                cost_of_revenue = cost_of_revenue/pow(10, 6)
+            else:
+                continue
+            if ebitda is not None:
+                ebitda = ebitda/pow(10, 6)
+            else:
+                continue
+            if operating_revenue is not None:
+                operating_revenue = operating_revenue / pow(10, 6)
+            else:
+                continue
+            if cash is not None:
+                cash = cash / pow(10, 6)
+            else:
+                continue
+            if inventory is not None:
+                inventory = inventory / pow(10, 6)
+            else:
+                continue
+            if accounts_receivable is not None:
+                accounts_receivable = accounts_receivable / pow(10, 6)
+            else:
+                continue
+            if accounts_payable is not None:
+                accounts_payable = accounts_payable / pow(10, 6)
+            else:
+                continue
+            if current_debt is not None:
+                current_debt = current_debt / pow(10, 6)
+            else:
+                continue
+            if current_assets is not None:
+                current_assets = current_assets / pow(10, 6)
+            else:
+                continue
+            if current_liabilities is not None:
+                current_liabilities = current_liabilities / pow(10, 6)
+            else:
+                continue
+
+            temp.update({key: [revenue, cost_of_revenue, ebitda, operating_revenue, sector, cash, inventory,
+                               accounts_receivable, accounts_payable, current_debt, current_assets, current_liabilities,
+                               ebitda_margin, ccc]})
             if i == 2023:
                 data_set.update(temp)
 
