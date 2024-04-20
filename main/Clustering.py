@@ -25,40 +25,39 @@ profit_margin_values = []
 COGS_values = []
 sector_values = []
 
-
 for elem in full_tickers_list:
-    tkr = elem
+    tkr = str(elem)
     print (tkr)
     for i in range(2020, 2024):
+        i = str(i)
         try:
-            print (data_set[tkr][str(i)]['Working Cap Metrics']['CCC'])
+            liquidity_metric_values.append(data_set[tkr][i]['Working Cap Metrics']['CCC'])
+            profit_margin_values.append(data_set[tkr][i]['EBITDA Margin'])
+            COGS_values.append(data_set[tkr][i]['pl']['COGS'] / pow(10, 9))
+            sector_values.append(data_set[tkr]['sector'])
         except KeyError:
-            print ('error: ', tkr)
-
-'''try:
-    liquidity_metric_values.append(data_set[tkr][i]['Working Cap Metrics']['CCC'])
-    profit_margin_values.append(data_set[tkr][i]['EBITDA Margin'])
-    COGS_values.append(data_set[tkr][i]['pl']['Cost Of Revenue']/pow(10,9))
-    sector_values.append(data_set[tkr]['sector'])
-except KeyError:
-    print ('KeyError: ', tkr)
-    pass
+            print('Key error: ', tkr)
+            pass
 
 d = {'sector':sector_values, 'liq':liquidity_metric_values,'prof_mrgn': profit_margin_values, 'cogs' :COGS_values}
 df = pd.DataFrame(data=d)
 
 sectors_list = []
+sectors_number = {}
 for sector in sector_values:
     if sector in sectors_list:
+        sectors_number.update({sector: sector_values.count(sector)})
         continue
     else:
         sectors_list.append(sector)
+print(sectors_number)
 
-    pprint (df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
+#pprint(df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
+
 
 for sector in sectors_list:
     print (sector)
     km = KMeans(n_clusters=5)
     km.fit(df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
     results = km.cluster_centers_
-    print (results)'''
+    print (results)
