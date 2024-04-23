@@ -120,7 +120,7 @@ with tqdm(total=len(full_tickers_list)) as pbar:
                         cost_of_revenue = 0
                     if 'Normalized EBITDA' in list(pl_dict[list(pl_dict)[0]].keys()):
                         try:
-                            ebitda = pl_dict[list(pl_dict)[0]]['Normalized EBITDA']
+                            ebitda = pl_dict[list(pl_dict)[0]]['EBITDA+']
                         except KeyError:
                             ebitda = 0
                     else:

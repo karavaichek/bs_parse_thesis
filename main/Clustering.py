@@ -26,15 +26,14 @@ COGS_values = []
 sector_values = []
 
 for elem in full_tickers_list:
-    tkr = str(elem)
-    print (tkr)
     for i in range(2020, 2024):
-        i = str(i)
+        tkr = str(elem) + '_' + str(i)
+        print (tkr)
         try:
-            liquidity_metric_values.append(data_set[tkr][i]['Working Cap Metrics']['CCC'])
-            profit_margin_values.append(data_set[tkr][i]['EBITDA Margin'])
-            COGS_values.append(data_set[tkr][i]['pl']['COGS'] / pow(10, 9))
-            sector_values.append(data_set[tkr]['sector'])
+            liquidity_metric_values.append(data_set[tkr][13])
+            profit_margin_values.append(data_set[tkr][12])
+            COGS_values.append(data_set[tkr][1])
+            sector_values.append(data_set[tkr][4])
         except KeyError:
             print('Key error: ', tkr)
             pass
@@ -58,7 +57,7 @@ print(sectors_number)
 
 for sector in sectors_list:
     print (sector)
-    km = KMeans(n_clusters=5)
+    km = KMeans(n_clusters=3)
     km.fit(df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
     results = km.cluster_centers_
     print (results)
