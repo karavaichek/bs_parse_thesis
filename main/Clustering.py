@@ -1,10 +1,12 @@
 
 import pandas as pd
-from sklearn.cluster import KMeans
+from sklearn.cluster import BisectingKMeans
 import json
 import csv
 from functools import reduce
 import pprint as pprint
+import matplotlib.pyplot as plt
+import numpy as np
 
 with open('E:\Thesis\Excel files\S&P500_tickers.json', 'r') as tickers_json:
     tickers = json.load(tickers_json)
@@ -54,10 +56,48 @@ print(sectors_number)
 
 #pprint(df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
 
+num_clusters = 3
 
 for sector in sectors_list:
     print (sector)
-    km = KMeans(n_clusters=3)
-    km.fit(df.loc[df['sector'] == sector, df.columns != 'sector'].to_numpy())
+    sector_data = df[df['sector'] == sector]
+
+    # Extract features for clustering
+    X = sector_data[['liq', 'prof_mrgn']]
+
+    # Perform clustering
+    km = BisectingKMeans(n_clusters=num_clusters)
+    km.fit(X)
+
+    # Get cluster labels
+    cluster_labels = km.labels_
     results = km.cluster_centers_
     print (results)
+
+    plt.figure(figsize=(8, 6))
+    for i in range(num_clusters):
+        mask = cluster_labels == i
+        plt.scatter(X.loc[mask, 'liq'], X.loc[mask, 'prof_mrgn'], label=f'Cluster {i + 1}')
+
+    # Plot decision boundaries
+    h = 0.02  # Step size in the mesh
+    x_min, x_max = X['liq'].min() - 1, X['liq'].max() + 1
+    y_min, y_max = X['prof_mrgn'].min() - 1, X['prof_mrgn'].max() + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
+    Z = km.predict(np.c_[xx.ravel(), yy.ravel()])
+    Z = Z.reshape(xx.shape)
+    plt.contourf(xx, yy, Z, alpha=0.2, cmap='viridis')
+
+    # Plot centroids
+    centroids = km.cluster_centers_
+    plt.scatter(centroids[:, 0], centroids[:, 1], marker='o', color='red', edgecolors = 'black' , label='Centroids')
+
+    plt.title(f'Clusters for {sector} sector')
+    plt.xlabel('CCC')
+    plt.ylabel('EBITDA Margin')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
+
+

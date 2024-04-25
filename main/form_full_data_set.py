@@ -120,7 +120,7 @@ with tqdm(total=len(full_tickers_list)) as pbar:
                         cost_of_revenue = 0
                     if 'Normalized EBITDA' in list(pl_dict[list(pl_dict)[0]].keys()):
                         try:
-                            ebitda = pl_dict[list(pl_dict)[0]]['EBITDA+']
+                            ebitda = pl_dict[list(pl_dict)[0]]['EBITDA']
                         except KeyError:
                             ebitda = 0
                     else:
@@ -213,5 +213,5 @@ with tqdm(total=len(full_tickers_list)) as pbar:
 
         pbar.update(1)
 
-with open(f'E:/Thesis/Excel files/Output_dataset/full_dataset.json', 'w') as f:
+with open(f'E:/Thesis/Excel files/Output_dataset/full_dataset_raw.json', 'w') as f:
     json.dump(data_set, f)
