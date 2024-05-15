@@ -3,7 +3,8 @@ import pandas as pd
 from sklearn.cluster import BisectingKMeans
 import json
 import csv
-from functools import reduce
+from functools import \
+    reduce
 import pprint as pprint
 import matplotlib.pyplot as plt
 import numpy as np
@@ -73,6 +74,11 @@ for sector in sectors_list:
     cluster_labels = km.labels_
     results = km.cluster_centers_
     print (results)
+
+    # Print number of observations in each cluster
+    for i in range(num_clusters):
+        num_obs = np.sum(cluster_labels == i)
+        print(f"Cluster {i + 1}: {num_obs} observations")
 
     plt.figure(figsize=(8, 6))
     for i in range(num_clusters):
